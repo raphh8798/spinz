@@ -1,0 +1,208 @@
+-- =====================================================
+-- 뮤지컬 트래커 프로젝트 DDL (FK 미사용 버전)
+-- 데이터 소스: KOPIS(공연예술통합전산망) OPEN API
+-- 장르 필터: GGGA(뮤지컬)
+-- =====================================================
+
+-- ---------------------------------------------------
+-- 1. PERFORM_MASTER : 공연 마스터 정보 (공연목록조회 API 매핑)
+-- ---------------------------------------------------
+CREATE TABLE PERFORM_MASTER (
+    MT20ID            VARCHAR(20)   PRIMARY KEY,
+    PRFNM             VARCHAR(200)  NOT NULL,
+    PRFPDFROM         DATE,
+    PRFPDTO           DATE,
+    FCLTYNM           VARCHAR(200),
+    POSTER            VARCHAR(500),
+    AREA              VARCHAR(50),
+    GENRENM           VARCHAR(50),
+    OPENRUN           VARCHAR(5),
+    PRFSTATE          VARCHAR(20),
+    COLLECTED_AT      TIMESTAMP     NOT NULL DEFAULT NOW(),
+    UPDATED_AT        TIMESTAMP     NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE PERFORM_MASTER IS '공연 마스터 정보 - KOPIS 공연목록조회 API(PBLPRFR) 응답 매핑, 장르코드 GGGA(뮤지컬) 필터링';
+
+COMMENT ON COLUMN PERFORM_MASTER.MT20ID            IS 'KOPIS 공연 ID';
+COMMENT ON COLUMN PERFORM_MASTER.PRFNM             IS '공연명';
+COMMENT ON COLUMN PERFORM_MASTER.PRFPDFROM         IS '공연 시작일';
+COMMENT ON COLUMN PERFORM_MASTER.PRFPDTO           IS '공연 종료일';
+COMMENT ON COLUMN PERFORM_MASTER.FCLTYNM           IS '공연시설명(공연장명)';
+COMMENT ON COLUMN PERFORM_MASTER.GENRENM           IS '공연 장르명 - 뮤지컬(GGGA)만 수집';
+COMMENT ON COLUMN PERFORM_MASTER.AREA              IS '공연 지역(시도명)';
+COMMENT ON COLUMN PERFORM_MASTER.PRFSTATE          IS '공연상태(공연예정/공연중/공연완료)';
+COMMENT ON COLUMN PERFORM_MASTER.POSTER            IS '공연 포스터 이미지 URL';
+COMMENT ON COLUMN PERFORM_MASTER.OPENRUN           IS '오픈런 여부 (Y/N)';
+COMMENT ON COLUMN PERFORM_MASTER.COLLECTED_AT      IS '최초 수집 일시';
+COMMENT ON COLUMN PERFORM_MASTER.UPDATED_AT        IS '마지막 갱신 일시';
+
+
+
+
+-- ---------------------------------------------------
+-- 2. PERFORM_DETAIL : 공연 상세 정보 (공연상세조회 API 매핑)
+-- ---------------------------------------------------
+CREATE TABLE PERFORM_DETAIL (
+    MT20ID          VARCHAR(20)  PRIMARY KEY,
+    MT13ID          VARCHAR(20),
+    FRSTREGDT       TIMESTAMP,
+    PRFCAST         TEXT,
+    PRFCREW         TEXT,
+    PRFRUNTIME      VARCHAR(50),
+    PRFAGE          VARCHAR(50),
+    ENTRPSNM        VARCHAR(200),
+    ENTRPSNMP       VARCHAR(200),
+    ENTRPSNMH       VARCHAR(200),
+    ENTRPSNMA       VARCHAR(200),
+    ENTRPSNMS       VARCHAR(200),
+    PCSEGUIDANCE    TEXT,
+    STY             TEXT,
+    VISIT           VARCHAR(5),
+    CHILD           VARCHAR(5),
+    DAEHAKRO        VARCHAR(5),
+    FESTIVAL        VARCHAR(5),
+    MUSICALLICENSE  VARCHAR(5),
+    MUSICALCREATE   VARCHAR(5),
+    KOPIS_UPDATEDATE TIMESTAMP,
+    MT10ID          VARCHAR(20),
+    DTGUIDANCE      TEXT,
+    COLLECTED_AT    TIMESTAMP    NOT NULL DEFAULT NOW(),
+    UPDATED_AT      TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE PERFORM_DETAIL IS '공연 상세 정보';
+
+COMMENT ON COLUMN PERFORM_DETAIL.MT20ID        IS 'KOPIS 공연 ID';
+COMMENT ON COLUMN PERFORM_DETAIL.MT13ID        IS 'KOPIS 공연장 ID';
+COMMENT ON COLUMN PERFORM_DETAIL.PRFCAST       IS '출연진';
+COMMENT ON COLUMN PERFORM_DETAIL.PRFCREW       IS '제작진';
+COMMENT ON COLUMN PERFORM_DETAIL.PRFRUNTIME    IS '공연 러닝타임';
+COMMENT ON COLUMN PERFORM_DETAIL.PRFAGE        IS '관람 가능 연령';
+COMMENT ON COLUMN PERFORM_DETAIL.ENTRPSNM      IS '기획제작사';
+COMMENT ON COLUMN PERFORM_DETAIL.ENTRPSNMP     IS '제작사';
+COMMENT ON COLUMN PERFORM_DETAIL.ENTRPSNMH     IS '주최사';
+COMMENT ON COLUMN PERFORM_DETAIL.ENTRPSNMA     IS '기획사';
+COMMENT ON COLUMN PERFORM_DETAIL.ENTRPSNMS     IS '주관사';
+COMMENT ON COLUMN PERFORM_DETAIL.PCSEGUIDANCE  IS '티켓 가격 안내 (원본 텍스트, 좌석등급별 상이)';
+COMMENT ON COLUMN PERFORM_DETAIL.STY           IS '공연 줄거리/소개';
+COMMENT ON COLUMN PERFORM_DETAIL.DTGUIDANCE    IS '공연 시간(요일별 회차) 안내';
+COMMENT ON COLUMN PERFORM_DETAIL.FRSTREGDT     IS 'KOPIS 원본 최초 등록일시';
+COMMENT ON COLUMN PERFORM_DETAIL.KOPIS_UPDATEDATE IS 'KOPIS 원본 최종 수정일시';
+COMMENT ON COLUMN PERFORM_DETAIL.MT10ID        IS 'KOPIS 공연시설 ID';
+COMMENT ON COLUMN PERFORM_DETAIL.VISIT         IS '내한공연 여부 (Y/N)';
+COMMENT ON COLUMN PERFORM_DETAIL.CHILD         IS '아동공연 여부 (Y/N)';
+COMMENT ON COLUMN PERFORM_DETAIL.DAEHAKRO      IS '대학로공연 여부 (Y/N)';
+COMMENT ON COLUMN PERFORM_DETAIL.FESTIVAL      IS '축제 여부 (Y/N)';
+COMMENT ON COLUMN PERFORM_DETAIL.MUSICALLICENSE IS '라이센스 뮤지컬 여부 (Y/N)';
+COMMENT ON COLUMN PERFORM_DETAIL.MUSICALCREATE IS '창작 뮤지컬 여부 (Y/N)';
+COMMENT ON COLUMN PERFORM_DETAIL.COLLECTED_AT  IS '최초 수집 일시';
+COMMENT ON COLUMN PERFORM_DETAIL.UPDATED_AT    IS '마지막 갱신 일시';
+
+
+
+
+-- ---------------------------------------------------
+-- 3. PERFORM_RELATE : 공연별 예매처 목록 (1:N)
+-- ---------------------------------------------------
+CREATE TABLE PERFORM_RELATE (
+    MT20ID       VARCHAR(20)  NOT NULL,
+    NO           SERIAL,
+    RELATENM     VARCHAR(200),
+    RELATEURL    VARCHAR(500),
+    COLLECTED_AT TIMESTAMP    NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (MT20ID, NO)
+);
+
+COMMENT ON TABLE PERFORM_RELATE IS '공연별 예매처 목록';
+
+COMMENT ON COLUMN PERFORM_RELATE.MT20ID       IS 'KOPIS 공연 ID';
+COMMENT ON COLUMN PERFORM_RELATE.NO           IS '내부 관리용 일련번호';
+COMMENT ON COLUMN PERFORM_RELATE.RELATENM     IS '예매처명';
+COMMENT ON COLUMN PERFORM_RELATE.RELATEURL    IS '예매처 예매 페이지 URL';
+COMMENT ON COLUMN PERFORM_RELATE.COLLECTED_AT IS '수집 일시';
+
+
+
+
+-- ---------------------------------------------------
+-- 4. PERFORM_STYURL : 공연별 소개이미지 목록 (1:N)
+-- ---------------------------------------------------
+CREATE TABLE PERFORM_STYURL (
+    MT20ID       VARCHAR(20)  NOT NULL,
+    NO           SERIAL,
+    STYURL       VARCHAR(500),
+    COLLECTED_AT TIMESTAMP    NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (MT20ID, NO)
+);
+
+COMMENT ON TABLE PERFORM_STYURL IS '공연별 소개이미지 목록';
+
+COMMENT ON COLUMN PERFORM_STYURL.MT20ID       IS 'KOPIS 공연 ID';
+COMMENT ON COLUMN PERFORM_STYURL.NO           IS '내부 관리용 일련번호';
+COMMENT ON COLUMN PERFORM_STYURL.STYURL       IS '소개이미지 URL';
+COMMENT ON COLUMN PERFORM_STYURL.COLLECTED_AT IS '수집 일시';
+
+
+
+
+-- =====================================================
+-- 5. 사용자
+-- =====================================================
+
+CREATE TABLE USERS (
+    ID            SERIAL       PRIMARY KEY,
+    NAME          VARCHAR(50)  UNIQUE NOT NULL,
+    PASSWORD_HASH VARCHAR(255) NOT NULL,
+    CREATED_AT    TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE USERS IS '사용자';
+
+COMMENT ON COLUMN USERS.ID            IS '내부 관리용 일련번호';
+COMMENT ON COLUMN USERS.NAME          IS '사용자 이름';
+COMMENT ON COLUMN USERS.PASSWORD_HASH IS 'werkzeug.security.generate_password_hash';
+COMMENT ON COLUMN USERS.CREATED_AT    IS '최초 로그인(생성) 일시';
+
+
+
+
+-- =====================================================
+-- 6. 찜 
+-- =====================================================
+
+CREATE TABLE PERFORM_FAV (
+    USER_ID      INT          NOT NULL,
+    MT20ID       VARCHAR(20)  NOT NULL,
+    FAVORITED_AT TIMESTAMP    NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (USER_ID, MT20ID)
+);
+
+COMMENT ON TABLE PERFORM_FAV IS '사용자별 찜(하트) 목록';
+
+COMMENT ON COLUMN PERFORM_FAV.USER_ID      IS 'USERS.ID';
+COMMENT ON COLUMN PERFORM_FAV.MT20ID       IS 'KOPIS 공연 ID';
+COMMENT ON COLUMN PERFORM_FAV.FAVORITED_AT IS '찜한 일시';
+
+
+
+
+-- =====================================================
+-- 7. 관심 배우
+-- =====================================================
+
+CREATE TABLE WATCHED_ACTOR (
+    ID         SERIAL       PRIMARY KEY,
+    USER_ID    INT          NOT NULL,
+    ACTOR_NAME VARCHAR(50)  NOT NULL,
+    CREATED_AT TIMESTAMP    NOT NULL DEFAULT NOW(),
+    UNIQUE (USER_ID, ACTOR_NAME)
+);
+
+COMMENT ON TABLE WATCHED_ACTOR IS '사용자별 관심 배우 목록';
+
+COMMENT ON COLUMN WATCHED_ACTOR.ID         IS '내부 관리용 일련번호';
+COMMENT ON COLUMN WATCHED_ACTOR.USER_ID    IS 'USERS.ID 논리적 참조';
+COMMENT ON COLUMN WATCHED_ACTOR.ACTOR_NAME IS '관심 배우 이름';
+COMMENT ON COLUMN WATCHED_ACTOR.CREATED_AT IS '등록 일시';
+

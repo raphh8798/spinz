@@ -1,0 +1,10 @@
+.env
+pgdata/
+__pycache__/
+*.pyc
+bash.exe.stackdump
+.venv/
+frontend/node_modules/
+frontend/dist/
+*test*
+GUIDE.md
