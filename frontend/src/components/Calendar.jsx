@@ -9,6 +9,7 @@ export default function Calendar() {
   const [selectedDate , setSelectedDate] = useState(null);
   const [isPerformToggleOn, setIsPerformToggleOn] = useState(false);
   const [isActorToggleOn, setIsActorToggleOn] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     api.getCalendar(month).then((data) => {
@@ -30,11 +31,6 @@ export default function Calendar() {
 
   function getFilteredPerforms(dateStr) {
     const performs = data.by_date[dateStr] || [];
-    return performs.filter(p => (filterMode !== "fav" || p.is_fav) && (filterMode !== "actor" || p.actor_name.length > 0));
-  }
-
-  function getFilteredPerforms(dateStr) {
-    const performs = data.by_date[dateStr] || [];
     if (!isPerformToggleOn && !isActorToggleOn) return performs;
     return performs.filter(p =>
       (isPerformToggleOn && p.is_fav) ||
@@ -44,7 +40,7 @@ export default function Calendar() {
 
 
   return (
-    <div>
+    <div className="card">
       <div className="cal-header">
         <button className="s-btn" onClick={() => { setMonth(data.prev_month); setSelectedDate(null); }}>◀</button>
         <h3 className="cal-month">{data.year}년 {data.month}월</h3>
@@ -83,31 +79,46 @@ export default function Calendar() {
           const hasActorMatch = isActorToggleOn && filtered.some(p => p.actor_name.length > 0);
 
           return (
-            <div key={date} className="cal-box" onClick={() => setSelectedDate(dateStr)}>
+            <div key={date} className="cal-box" onClick={() => { setSelectedDate(dateStr); setPage(1); }}>
               {date}
-              {filtered.length > 0 && !isPerformToggleOn && !isActorToggleOn && <span className="cal-mark" style={{color: "#ff3d3d"}}>⋮</span>}
-              {hasFav && <span className="cal-mark">💌</span>}
-              {hasActorMatch && <span className="cal-mark">💟</span>}
+              <span className="cal-marks">
+                {filtered.length > 0 && !isPerformToggleOn && !isActorToggleOn && <span style={{color: "#ff3d3d"}}>⋮</span>}
+                {hasFav && <span>💌</span>}
+                {hasActorMatch && <span>💟</span>}
+              </span>
             </div>
           );
         })}
       </div>
       
-      {selectedDate && (
-        <div className="list-container">
-          <h3>{selectedDate} 공연 목록</h3>
-          {getFilteredPerforms(selectedDate).map((s) => (
-            /* 선택된 날짜에 대한 공연 목록 표시 - 토글 기능 포함 */
-            <div key={s.mt20id}>
-              {s.prfnm}
-              {s.actor_name.join(", ")}
-              <button className="s-btn" onClick={() => api.toggleFavorite(s.mt20id, month).then(setData)}>
-                {s.is_fav ? "💌" : "♡"}
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      {selectedDate && (() => {
+        const dayPerforms = getFilteredPerforms(selectedDate);
+        const PAGE_SIZE = 10;
+        const totalPages = Math.ceil(dayPerforms.length / PAGE_SIZE);
+        const paged = dayPerforms.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+        return (
+          <div className="list-container">
+            <h3>{selectedDate} 공연 목록</h3>
+            {paged.map((s) => (
+              /* 선택된 날짜에 대한 공연 목록 표시 - 토글 기능 포함 */
+              <div className="item-card" key={s.mt20id}>
+                <span>{s.prfnm} {s.actor_name.join(", ")}</span>
+                <button className="s-btn" onClick={() => api.toggleFavorite(s.mt20id, month).then(setData)}>
+                  {s.is_fav ? "💌" : "♡"}
+                </button>
+              </div>
+            ))}
+            {totalPages > 1 && (
+              <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginTop: "12px" }}>
+                <button className="s-btn" disabled={page === 1} onClick={() => setPage(page - 1)}>이전</button>
+                <span>{page} / {totalPages}</span>
+                <button className="s-btn" disabled={page === totalPages} onClick={() => setPage(page + 1)}>다음</button>
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 button {
-  background-color: #9797971a;
-  color: #585858;
+  background-color: var(--accent-bg);
+  color: var(--accent);
   padding: 10px 20px;
   font-size: 15px;
   font-weight: 600;
@@ -10,49 +10,117 @@ button {
   transition: background-color 0.2s ease;
 }
 button:hover {
-  background-color: #4b4b4b1a;
+  background-color: var(--accent-border);
 }
 .s-btn {
   font-size: 13px;
   height: 50px;
 }
 
+/* 카드 - 화면 콘텐츠 전체를 감싸는 공통 컨테이너 */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin: 20px auto;
+  max-width: 900px;
+  text-align: left;
+}
+
+/* 네비게이션 */
+nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 24px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+nav span {
+  font-weight: 700;
+  margin-right: auto;
+  color: var(--text-h);
+}
+
+/* 로그인 폼 */
+.card form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.card input,
+.card select {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+/* 리스트를 작은 카드로 */
+.item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+
 /* 캘린더 */
-.cal {
-  display:grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ccc;
-}
-.cal > div {
-  border-right: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
-}
 .cal-header {
   display: flex;
-  justify-content: space-evenly;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 .cal-month {
-  grid-column: span 7;
+  margin: 0;
+}
+.cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cal > div {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 .cal-day-label {
   font-weight: bold;
-  padding: 5px;
-  background-color: #bce1ff;
+  padding: 8px 0;
+  background-color: var(--accent-bg);
+  color: var(--accent);
 }
 .cal-box {
-  height: 100px;
+  height: 90px;
   cursor: pointer;
   position: relative;
+  transition: background-color 0.15s ease;
 }
-.cal-mark {
+.cal-box:hover {
+  background-color: var(--accent-bg);
+}
+.cal-marks {
   position: absolute;
   top: 4px;
-  right: 4px;
+  right: 6px;
+  display: flex;
+  gap: 2px;
 }
-.list-container{
-  margin: 10px 15px 30px 15px;
+.list-container {
+  margin: 16px auto 0;
+  max-width: 900px;
 }
 
 .toggle-container {
@@ -60,20 +128,27 @@ button:hover {
   justify-content: flex-end;
   align-items: center;
   gap: 5px;
+  margin-bottom: 12px;
+}
+.toggle-container h5 {
+  margin: 0;
+  font-weight: 500;
+  color: var(--text);
 }
 .toggle-container > div {
   width: 50px;
   height: 20px;
-  background-color: #ccc;
+  background-color: var(--border);
   border-radius: 20px;
   padding: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 .toggle-container > div:has(.toggle-perform.on) {
-  background-color: #ff70c8;
-}.toggle-container > div:has(.toggle-actor.on) {
-  background-color: #7e70ff;
+  background-color: #ffafcc;
+}
+.toggle-container > div:has(.toggle-actor.on) {
+  background-color: #cdb4db;
 }
 .toggle-perform, .toggle-actor {
   width: 20px;

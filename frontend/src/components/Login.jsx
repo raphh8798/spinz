@@ -19,11 +19,14 @@ export default function Login({onLogin}) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="이름"></input>
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="비밀번호"></input>
-      <button type="submit">로그인</button>
-      {error && <div style={{color: "red"}}>{error}</div>}
-    </form>
+    <div className="card">
+      <h2>로그인</h2>
+      <form onSubmit={handleSubmit}>
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="이름"></input>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="비밀번호"></input>
+        <button type="submit">로그인</button>
+        {error && <div style={{color: "red"}}>{error}</div>}
+      </form>
+    </div>
   );
 }
